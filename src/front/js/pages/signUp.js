@@ -1,52 +1,58 @@
 import React, { useState, useContext } from "react";
 import { Context } from "../store/appContext";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const SignUp = () => {
+export const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const { store, actions } = useContext(Context);
 
-  const onSubmit = async () => {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     await actions.signUp(email, password, navigate);
   };
 
   return (
     <div className="container">
-      <div className="mb-3 row">
-        <label className="col-sm-2 col-form-label">Email adress</label>
-
-        <div className="col-sm-10">
-          <input
-            type="text"
-            className="form-control-plaintext"
-            id="staticEmail"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+      <div className="row">
+        <div className="col-2"></div>
+        <div className="col-8">
+          <h1>Sign Up</h1>
+          <form className="mt-2" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="staticEmail">Email address</label>
+              <input
+                type="email"
+                className="form-control"
+                id="staticEmail"
+                aria-describedby="emailHelp"
+                placeholder="Enter email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="inputPassword">Password</label>
+              <input
+                type="password"
+                className="form-control"
+                id="inputPassword"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <div className="col-12">
+              <button type="submit" className="btn btn-primary">
+                Sign up
+              </button>
+            </div>
+          </form>
         </div>
-      </div>
-      <div className="mb-3 row">
-        <label className="col-sm-2 col-form-label">Password</label>
-        <div className="col-sm-10">
-          <input
-            type="password"
-            className="form-control"
-            id="inputPassword"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-      </div>
-      <div className="col-12">
-        <button type="submit" className="btn btn-primary" onClick={onSubmit}>
-          Sign up
-        </button>
+        <div className="col-2"></div>
       </div>
     </div>
   );
 };
-
-export default SignUp;

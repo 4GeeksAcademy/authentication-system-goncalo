@@ -1,67 +1,76 @@
-import React, { useState, useContext } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import React, { useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Context } from "../store/appContext";
 
-const LogIn = () => {
+export const LogIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { store, actions } = useContext(Context);
 
   const navigate = useNavigate();
 
-  const onSubmit = async (event) => {
+  useEffect(() => {
+    actions.syncTokenFromSessionStorage(navigate);
+  }, [actions, navigate]);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     try {
-      await event.preventDefault();
-
-      if (email === "" || password === "") {
-        alert("Email or password should not be empty");
+      if (email === '' || password === '') {
+        alert('Email or password should not be empty');
       }
-
-      await actions.login(email, password, navigate);
+      const data = await actions.login(email, password);
+      if (data) {
+        navigate("/")
+      }  
     } catch (error) {
-      console.log(error);
+      console.error("Login failed", error);
     }
   };
 
   return (
     <div className="container">
-      <form className="mt-2">
-        <div className="mb-3 row">
-          <label htmlFor="staticEmail" className="col-sm-2 col-form-label">
-            Email address
-          </label>
-          <div className="col-sm-10">
-            <input
-              type="text"
-              className="form-control-plaintext"
-              id="staticEmail"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+        <div className="row">
+          <div className="col-2"></div>
+          <div className="col-8">
+            <h1>Log In</h1>
+            {store.token && store.token !== "" && store.token !== undefined ? (  
+            console.log("you are logged in with the token " + store.token)
+            ) : (
+            <form className="mt-2" onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="staticEmail">Email address</label>
+                <input
+                  type="email"
+                  className="form-control"
+                  id="staticEmail"
+                  aria-describedby="emailHelp"
+                  placeholder="Enter email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="inputPassword">Password</label>
+                <input
+                  type="password"
+                  className="form-control"
+                  id="inputPassword"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              <div className="col-12">
+                <button type="submit" className="btn btn-primary">
+                  Log In
+                </button>
+              </div>
+            </form>
+            )}
           </div>
+          <div className="col-2"></div>
         </div>
-        <div className="mb-3 row">
-          <label htmlFor="inputPassword" className="col-sm-2 col-form-label">
-            Password
-          </label>
-          <div className="col-sm-10">
-            <input
-              type="password"
-              className="form-control"
-              id="inputPassword"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-        </div>
-        <div className="col-12">
-          <button type="submit" className="btn btn-primary" onClick={onSubmit}>
-            Submit
-          </button>
-        </div>
-      </form>
     </div>
   );
 };
-
-export default LogIn;
