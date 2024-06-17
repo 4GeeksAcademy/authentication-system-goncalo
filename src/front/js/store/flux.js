@@ -44,21 +44,28 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
       signUp: async (email, password, navigate) => {
         try {
-          const resp = await fetch(`${process.env.BACKEND_URL}/api/signup`, {
+          const resp = await fetch(`${process.env.BACKEND_URL}api/signup`, {
             method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
             body: JSON.stringify({
               email: email,
               password: password,
               is_active: true,
             }),
           });
-          const data = await resp.json();
-          console.log("sign up successful");
-          if (data) {
-            navigate("/");
+
+          if (!resp.ok) {
+            throw new Error("Failed to sign up");
           }
+
+          const data = await resp.json();
+          console.log("Sign up successful", data);
+          navigate("/"); // Redirect to homepage after successful signup
         } catch (error) {
-          console.error("error from signUp action", error);
+          console.error("Error from signUp action", error);
+          // Handle error, possibly show a message to the user
         }
       },
     },

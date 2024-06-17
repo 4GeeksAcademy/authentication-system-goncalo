@@ -31,22 +31,34 @@ def create_token():
 
 @api.route('/signup', methods=['POST'])
 def signup_user():
- 
-  email = request.json.get("email", None)
-  password = request.json.get("password", None)
+    try:
+        data = request.get_json()  # Use request.get_json() to parse JSON data
 
-  if email is None:
-      return jsonify({"msg": "Email can not be empty"}), 400
-  if password is None:
-      return jsonify({"msg": "Password can not be empty"}), 400
+        email = data.get("email")
+        password = data.get("password")
+        is_active = data.get("is_active", True)  # Default to True if is_active is not provided
 
-  user = User(
-      email = email,
-      password = password,
-      is_active = True
-  )
+        if not email or not password:
+            return jsonify({"msg": "Email and password cannot be empty"}), 400
 
-  db.session.add(user)
-  db.session.commit()
+        # Check if the user already exists in the database (optional step)
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            return jsonify({"msg": "User with this email already exists"}), 400
 
-  return jsonify({ "msg": "New User Signed up..." }), 201
+        # Create a new user object
+        new_user = User(
+            email=email,
+            password=password,
+            is_active=is_active
+        )
+
+        # Add the user to the database
+        db.session.add(new_user)
+        db.session.commit()
+
+        return jsonify({"msg": "New user signed up successfully"}), 201
+
+    except Exception as e:
+        print(str(e))  # Log any exceptions for debugging purposes
+        return jsonify({"msg": "Failed to sign up user"}), 500
